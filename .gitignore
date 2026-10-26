@@ -1,0 +1,26 @@
+# Binaries / build artifacts
+*.o
+*.obj
+*.exe
+*.out
+a.out
+# nvcc / make outputs
+/01_basics/vector_add
+/01_basics/matrix_mul
+/01_basics/reduction
+/02_benchmarks/bandwidth
+/02_benchmarks/occupancy
+/02_benchmarks/kernel_timing
+/03_applications/image_blur
+/03_applications/histogram
+/03_applications/monte_carlo
+/04_kv_cache/cpp/paged_attention
+/05_train_infer/cpp/tiny_transformer
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# Editor
+.vscode/
+.idea/
+.DS_Store
