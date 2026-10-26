@@ -43,7 +43,7 @@ class TinyTransformer:
         a = np.exp(scores); a /= a.sum(-1, keepdims=True)
         C = a @ V
         H = C @ self.Wo.T
-        LOGITS = H @ self.Wc.T
+        LOGITS = H @ self.Wc          # (T,D) @ (D,VOCAB) -> (T,VOCAB)
         return X, Q, K, V, a, C, H, LOGITS
 
     def loss(self, LOGITS, seq):
@@ -62,7 +62,7 @@ class TinyTransformer:
         glogits /= P
 
         self.gWc = H.T @ glogits
-        gh = glogits @ self.Wc
+        gh = glogits @ self.Wc.T   # (T,VOCAB) @ (VOCAB,D) -> (T,D)
         self.gWo = C.T @ gh
         gc = gh @ self.Wo
         gV = a.T @ gc
@@ -196,7 +196,7 @@ def main():
             X, Q, K, V, a, C, H, L_ = model.forward(s)
             total += model.loss(L_, s)
             model.backward(s, X, Q, K, V, a, C, H, L_)
-            model.sgd(0.5)
+            model.sgd(0.02)  # conservative: this tiny unnormalized net diverges at higher lr
         if epoch % 40 == 0 or epoch == 199:
             print(f"  epoch {epoch:3d} avg loss {total / len(data):.4f}")
 
@@ -214,7 +214,7 @@ def main():
         k_last, _ = model.token_kv(generated[-1])
         ctx = cache.context(sid, qpos, k_last)
         h = ctx @ model.Wo.T
-        logits = h @ model.Wc.T
+        logits = h @ model.Wc          # (D,) @ (D,VOCAB) -> (VOCAB,)
         nxt = int(np.argmax(logits))
         k, v = model.token_kv(nxt)
         cache.append(sid, cache.seq_len[sid], k, v)
